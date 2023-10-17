@@ -1,6 +1,6 @@
 {
   "name": "bgio-websocket-lobby",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "dist/bgio-websocket-lobby.js",
   "scripts": {
