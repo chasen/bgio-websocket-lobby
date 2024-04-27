@@ -1,6 +1,7 @@
 const path = require('path');
 module.exports = {
-    entry: './src/index.js',
+    entry: './src/index.ts',
+    mode: "production",
     output: {
         path: path.resolve(__dirname, 'dist'),
         filename: 'bgio-websocket-lobby.js',
@@ -17,7 +18,15 @@ module.exports = {
                         presets: ['@babel/preset-env']
                     }
                 }
-            }
+            },
+            {
+                test: /\.tsx?$/,
+                use: 'ts-loader',
+                exclude: /node_modules/,
+            },
         ]
+    },
+    resolve: {
+        extensions: [".ts", ".js"]
     }
 };

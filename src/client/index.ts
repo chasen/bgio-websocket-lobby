@@ -1,5 +1,5 @@
 import io from "socket.io-client";
-export const clientInitializer = (serverUrl) => {
+export const clientInitializer = (serverUrl:string) => {
     return io(serverUrl, {
         query: {
             auth: true

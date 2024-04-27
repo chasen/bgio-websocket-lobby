@@ -3,20 +3,30 @@ import {LobbyClient} from 'boardgame.io/client';
 import Lodash from 'lodash'
 import {nanoid} from "nanoid/non-secure";
 import {LOBBY_STATUS_IN_LOBBY} from "../constants";
+import {
+    gameGetSetupInfoProps,
+    lobbiesCreateProps,
+    lobbiesJoinProps,
+    lobbiesKickUserProps, lobbiesPlayerLeftProps, lobbiesStartGameProps, lobbiesToggleReadyProps,
+    Lobby,
+    lobbySocketInitializerProps,
+} from "../types";
+import {Socket} from "socket.io";
+
 
 export * as constants from '../constants'
-export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameName}) => {
+export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameName}: lobbySocketInitializerProps) => {
     const lobbyClient = new LobbyClient(lobbyClientConfig);
-    const lobbies = [];
+    const lobbies: Lobby[] = [];
 
-    const socketRoomNamespace = (value, prefix = null) => {
+    const socketRoomNamespace = (value: string, prefix: string = null) => {
         console.log('socketRoomNamespace:',roomNamespace + '-' + (prefix ? prefix + '-' : '') + value)
         return roomNamespace + '-' + (prefix ? prefix + '-' : '') + value
     }
 
-    return async (socket) => {
+    return async (socket: Socket) => {
         // const nanoid = await import('nanoid').catch((e)=>{console.log(e)});
-        const triggerLobbyUpdate = (lobbyId) => {
+        const triggerLobbyUpdate = (lobbyId: string) => {
             console.log('triggerLobbyUpdate', lobbyId)
             const lobby = Lodash.find(lobbies, {id: lobbyId});
             socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_UPDATED, lobby);
@@ -24,10 +34,10 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             socket.emit(constants.ON_LOBBY_RECEIVE_ALL, lobbies);
         }
 
-        const updateLobbyInLobbies = (lobby) => {
+        const updateLobbyInLobbies = (lobby: Lobby) => {
             console.log('updateLobbyInLobbies',lobby)
             const lobbyIdx = lobbies.findIndex((cur)=>{
-                return cur === lobby.id
+                return cur.id === lobby.id
             })
             lobbies[lobbyIdx] = lobby;
             triggerLobbyUpdate(lobby.id);
@@ -38,7 +48,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             socket.emit(constants.ON_LOBBY_RECEIVE_ALL, lobbies)
         };
 
-        const lobbiesCreate = async ({lobbyData, playerData}) => {
+        const lobbiesCreate = async ({lobbyData, playerData}: lobbiesCreateProps) => {
             try{
                 const lobby = {
                     id: nanoid(6),
@@ -48,8 +58,11 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
                     ],
                     maxPlayers: lobbyData.maxPlayers,
                     options: {},
-                    status: LOBBY_STATUS_IN_LOBBY
-                }
+                    status: LOBBY_STATUS_IN_LOBBY,
+                    private: false,
+                    gameOptions: {},
+                    name: playerData.name + "'s lobby",
+                } as Lobby
                 lobbies.push(lobby)
                 socket.join(socketRoomNamespace(lobby.id, 'lobby'));
                 socket.to(socketRoomNamespace(gameName)).emit(constants.ON_LOBBY_RECEIVE_ALL, lobbies);
@@ -60,7 +73,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             }
         };
 
-        const lobbiesJoin = async ({lobbyId, playerData}) => {
+        const lobbiesJoin = async ({lobbyId, playerData}: lobbiesJoinProps) => {
             // console.log("lobbiesJoin")
             const lobby = Lodash.find(lobbies, {id: lobbyId});
 
@@ -91,7 +104,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             updateLobbyInLobbies(lobby);
         };
 
-        const lobbiesKickUser = async ({lobbyId, playerData, kickPlayerId}) => {
+        const lobbiesKickUser = async ({lobbyId, playerData, kickPlayerId}: lobbiesKickUserProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
 
             if (playerData.id !== lobby.host) {
@@ -104,7 +117,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_USER_KICKED, kickPlayerId);
         };
 
-        const lobbiesToggleReady = async ({lobbyId, playerData}) => {
+        const lobbiesToggleReady = async ({lobbyId, playerData}: lobbiesToggleReadyProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
             const {players} = lobby;
             const curPlayerIdx = players.findIndex(player => player.id === playerData.id);
@@ -113,7 +126,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             updateLobbyInLobbies(lobby);
         };
 
-        const lobbiesStartGame = async ({lobbyId, playerData}) => {
+        const lobbiesStartGame = async ({lobbyId, playerData}: lobbiesStartGameProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
             if(!lobby){
                 socket.emit(constants.LOBBY_ERROR, {"error_message": constants.LOBBY_ERROR_DOESNT_EXIST})
@@ -137,7 +150,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             const {matchID} = await lobbyClient.createMatch(gameName,{
                 numPlayers: lobby.players.length,
                 unlisted: lobby.private,
-                setupData: lobby.options,
+                setupData: lobby.gameOptions,
 
             }).catch((err) => {
                 console.log()
@@ -151,10 +164,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
                 // console.log("Attempting to join player to game: ", lobbyPlayers[i])
                 const {playerID, playerCredentials} = await lobbyClient.joinMatch(gameName, matchID, {
                     playerName: lobbyPlayers[i].name,
-                    data: {
-                        name: lobbyPlayers[i].name,
-                        color: lobbyPlayers[i].color,
-                    }
+                    data: lobbyPlayers[i].metadata
                 });
                 lobbyPlayers[i].seat = playerID;
                 lobbyPlayers[i].credentials = playerCredentials;
@@ -172,7 +182,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
             // This will prompt all clients to ask the server for their game and player info
         };
 
-        const gameGetSetupInfo = async ({lobbyId, playerData}) => {
+        const gameGetSetupInfo = async ({lobbyId, playerData}: gameGetSetupInfoProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
 
             const {
@@ -189,7 +199,7 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
                 players
             })
         };
-        const lobbiesPlayerLeft = async ({lobbyId, playerData}) => {
+        const lobbiesPlayerLeft = async ({lobbyId, playerData}: lobbiesPlayerLeftProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
             if (!lobby) {
                 return;
