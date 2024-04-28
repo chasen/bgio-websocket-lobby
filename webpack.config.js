@@ -4,7 +4,7 @@ module.exports = {
     mode: "production",
     output: {
         path: path.resolve(__dirname, 'dist'),
-        filename: 'bgio-websocket-lobby.js',
+        filename: 'index.js',
         libraryTarget: "commonjs2",
     },
     module: {
