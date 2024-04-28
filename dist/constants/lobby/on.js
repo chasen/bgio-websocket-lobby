@@ -1,0 +1,10 @@
+export var ON_LOBBY_CONNECT = 'connect';
+export var ON_LOBBY_RECEIVE_ALL = "onLobby:receiveAll";
+export var ON_LOBBY_CREATED = "onLobby:created";
+export var ON_LOBBY_JOINED = "onLobby:joined";
+export var ON_LOBBY_HOST_LEFT = "onLobby:hostLeft";
+export var ON_LOBBY_USER_KICKED = "onLobby:userKicked";
+export var ON_LOBBY_PLAYER_LEFT = "onLobby:playerLeft";
+export var ON_LOBBY_UPDATED = "onLobby:lobbyUpdated";
+export var ON_LOBBY_GAME_STARTED = "onLobby:gameStarted";
+export var ON_LOBBY_GAME_CREDENTIALS = "onLobby:gameCredentials";

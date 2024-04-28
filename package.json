@@ -2,13 +2,14 @@
   "name": "bgio-websocket-lobby",
   "version": "1.3.2",
   "description": "",
-  "main": "dist/bgio-websocket-lobby.js",
+
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
   "license": "ISC",
-  "types": "dist/index.d.ts",
+  "main": "dist/index",
+  "types": "dist/index",
   "files": [
     "dist",
     "typings"
