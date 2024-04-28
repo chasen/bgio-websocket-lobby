@@ -4,13 +4,17 @@ import Lodash from 'lodash'
 import {nanoid} from "nanoid/non-secure";
 import {LOBBY_STATUS_IN_LOBBY} from "../constants";
 import {
+    Player,
     gameGetSetupInfoProps,
     lobbiesCreateProps,
     lobbiesJoinProps,
-    lobbiesKickUserProps, lobbiesPlayerLeftProps, lobbiesStartGameProps, lobbiesToggleReadyProps,
+    lobbiesKickUserProps,
+    lobbiesPlayerLeftProps,
+    lobbiesStartGameProps,
+    lobbiesToggleReadyProps,
     Lobby,
     lobbySocketInitializerProps,
-} from "../types";
+} from "bgio-websocket-lobby";
 import {Socket} from "socket.io";
 
 

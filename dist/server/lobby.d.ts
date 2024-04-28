@@ -1,5 +1,6 @@
+/// <reference path="../../types/index.d.ts" />
 import * as constants from '../constants';
-import { lobbySocketInitializerProps } from "../types";
+import { lobbySocketInitializerProps } from "bgio-websocket-lobby";
 import { Socket } from "socket.io";
 export * as constants from '../constants';
 export declare const lobbySocketInitializer: ({ lobbyClientConfig, roomNamespace, gameName }: lobbySocketInitializerProps) => (socket: Socket) => Promise<void>;
