@@ -4,7 +4,6 @@ import Lodash from 'lodash'
 import {nanoid} from "nanoid/non-secure";
 import {LOBBY_STATUS_IN_LOBBY} from "../constants";
 import {
-    Player,
     gameGetSetupInfoProps,
     lobbiesCreateProps,
     lobbiesJoinProps,
@@ -14,7 +13,7 @@ import {
     lobbiesToggleReadyProps,
     Lobby,
     lobbySocketInitializerProps,
-} from "bgio-websocket-lobby";
+} from "../types";
 import {Socket} from "socket.io";
 
 

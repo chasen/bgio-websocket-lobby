@@ -8,8 +8,11 @@
     "allowJs": true,
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
-    "declaration": true
+    "declaration": true,
+    "declarationDir": "./dist/types"
   },
   "exclude": ["webpack.config.js"],
-  "include": ["src/**/*.ts", "types/index.d.ts"]
+  "include": ["src/**/*.ts",
+    "src/types/index.ts"
+  ]
 }
