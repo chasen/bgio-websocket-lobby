@@ -11,5 +11,6 @@
     "declaration": true,
   },
   "exclude": ["webpack.config.js"],
-  "include": ["src/**/*.ts", "types/index.d.ts"]
+  "include": ["src/**/*.ts"]
+//  "include": ["src/**/*.ts", "types/index.d.ts"]
 }

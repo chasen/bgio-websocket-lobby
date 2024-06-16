@@ -6,3 +6,4 @@ export const EMIT_LOBBY_KICK_USER = "emitLobby:kickUser";
 export const EMIT_LOBBY_TOGGLE_READY = "emitLobby:toggleReady";
 export const EMIT_LOBBY_START_GAME = "emitLobby:startGame";
 export const EMIT_LOBBY_GET_GAME_CREDENTIALS = "emitLobby:getGameCredentials"
+export const EMIT_LOBBY_UPDATE_SETUP_DATA = "emitLobby:updateSetupData"

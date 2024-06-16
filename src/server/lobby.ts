@@ -109,15 +109,20 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
 
         const lobbiesKickUser = async ({lobbyId, playerData, kickPlayerId}: lobbiesKickUserProps) => {
             const lobby = Lodash.find(lobbies, {id: lobbyId});
-
+            console.log(kickPlayerId)
             if (playerData.id !== lobby.host) {
                 socket.emit(constants.LOBBY_ERROR, {"error_message": constants.LOBBY_ERROR_ONLY_HOST_CAN_DO_THIS});
                 return;
             }
+            if(kickPlayerId === null){
+                socket.emit(constants.LOBBY_ERROR, {"error_message": "You must supply a playerID to kick"});
+                return
+            }
 
             lobby.players.splice(lobby.players.findIndex(player => player.id === kickPlayerId), 1);
             updateLobbyInLobbies(lobby);
-            socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_USER_KICKED, kickPlayerId);
+
+            socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_USER_KICKED, {kickPlayerId});
         };
 
         const lobbiesToggleReady = async ({lobbyId, playerData}: lobbiesToggleReadyProps) => {
@@ -213,7 +218,12 @@ export const lobbySocketInitializer = ({lobbyClientConfig, roomNamespace, gameNa
                     socket.to(socketRoomNamespace(gameName)).emit(constants.ON_LOBBY_RECEIVE_ALL, lobbies);
                     socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_HOST_LEFT)
                 } else {
-                    lobby.players.splice(lobby.players.findIndex(player => player.id === playerData.id), 1);
+                    const lobbyPlayerIdx = lobby.players.findIndex(player => player.id === playerData.id)
+                    if(!lobbyPlayerIdx){
+                        // Nothing to do lobby already doesnt have user
+                        return
+                    }
+                    lobby.players.splice(lobbyPlayerIdx, 1);
                     socket.to(socketRoomNamespace(gameName)).emit(constants.ON_LOBBY_RECEIVE_ALL, lobbies);
                     socket.to(socketRoomNamespace(lobbyId, 'lobby')).emit(constants.ON_LOBBY_PLAYER_LEFT, playerData.id)
                     // leave the lobby room before updating the rest of the players with the lobby
